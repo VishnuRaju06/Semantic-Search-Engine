@@ -53,13 +53,14 @@ class SemanticCache:
         self.miss_count += 1
         return False, None, best_score
 
-    def add(self, query, embedding, result, cluster):
+    def add(self, query, embedding, result, cluster, category):
 
         self.cache.append({
             "query": query,
             "embedding": embedding,
             "result": result,
-            "cluster": cluster
+            "cluster": cluster,
+            "category": category
         })
 
     def stats(self):
@@ -101,7 +102,8 @@ def search_system(query):
             "matched_query": item["query"],
             "similarity_score": float(score),
             "result": item["result"],
-            "dominant_cluster": item["cluster"]
+            "dominant_cluster": item["cluster"],
+            "category": item["category"]
         }
 
     D, I = index.search(query_embedding.reshape(1,-1), k=5)
@@ -109,8 +111,9 @@ def search_system(query):
     results = df.iloc[I[0]]["clean_text"].tolist()
 
     cluster = int(df.iloc[I[0][0]]["dominant_cluster"])
+    category = df.iloc[I[0][0]]["category"]
 
-    cache.add(query, query_embedding, results, cluster)
+    cache.add(query, query_embedding, results, cluster, category)
 
     return {
         "query": query,
@@ -118,7 +121,8 @@ def search_system(query):
         "matched_query": None,
         "similarity_score": 0.0,
         "result": results,
-        "dominant_cluster": cluster
+        "dominant_cluster": cluster,
+        "category": category
     }
 
 # -------------------------
