@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Semantic Search Engine</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 40px;
+    background:#f4f4f4;
+}
+
+input {
+    width:400px;
+    padding:10px;
+}
+
+button{
+    padding:10px;
+}
+
+.result{
+    margin-top:20px;
+    background:white;
+    padding:20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>Semantic Search Engine</h1>
+
+<input id="query" placeholder="Enter query"/>
+<button onclick="search()">Search</button>
+
+<div id="output" class="result"></div>
+
+<script>
+
+const API_URL = "http://localhost:8000";
+
+async function search(){
+
+const query=document.getElementById("query").value;
+
+try{
+
+const response=await fetch(API_URL+"/query",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({query:query})
+});
+
+const data=await response.json();
+
+let html=`
+<h3>Query:</h3> ${data.query}
+<p><b>Cache Hit:</b> ${data.cache_hit}</p>
+<p><b>Cluster:</b> ${data.dominant_cluster}</p>
+<h3>Results</h3>
+`;
+
+data.result.forEach(r=>{
+html+=`<p>- ${r.substring(0,200)}...</p>`;
+});
+
+document.getElementById("output").innerHTML=html;
+
+}catch(err){
+
+document.getElementById("output").innerHTML="<p style='color:red'>API connection failed</p>";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
